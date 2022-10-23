@@ -29,6 +29,18 @@ class _NewNoteUIState extends State<NewNoteUI> {
     }
   }
 
+  void updateNote() {
+    Note updatedNote = Note(
+      id: widget.note!.id!,
+      uid: 'avi@mail',
+      title: title.text,
+      content: content.text,
+      date: DateTime.now(),
+    );
+    Provider.of<NotesProvider>(context, listen: false).updateNote(updatedNote);
+    Navigator.pop(context);
+  }
+
   void newNote() {
     if (title.text.isNotEmpty || content.text.isNotEmpty) {
       Note newNote = Note(
@@ -41,17 +53,6 @@ class _NewNoteUIState extends State<NewNoteUI> {
 
       Provider.of<NotesProvider>(context, listen: false).addNote(newNote);
       Navigator.pop(context);
-    } else {
-      // ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(
-      //     content: Text('Please Fill either Title or Content'),
-      //     actions: [
-      //       IconButton(
-      //         onPressed: () {
-      //           Navigator.pop(context);
-      //         },
-      //         icon: Icon(Icons.close),
-      //       ),
-      //     ]));
     }
   }
 
@@ -118,7 +119,11 @@ class _NewNoteUIState extends State<NewNoteUI> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          newNote();
+          if (widget.isUpdate) {
+            updateNote();
+          } else {
+            newNote();
+          }
         },
         child: Icon(Icons.save),
       ),

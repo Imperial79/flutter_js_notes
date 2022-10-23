@@ -25,47 +25,49 @@ class _HomeUIState extends State<HomeUI> {
   Widget build(BuildContext context) {
     NotesProvider notesProvider = Provider.of<NotesProvider>(context);
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Notes'),
-      // ),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          CustomSliverAppBar(
-            isMainView: true,
-            title: Text(
-              'Notes',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.headline6!.color,
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate.fixed(
-              <Widget>[
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
+      body: notesProvider.isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : CustomScrollView(
+              slivers: <Widget>[
+                CustomSliverAppBar(
+                  isMainView: true,
+                  title: Text(
+                    'Notes',
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.headline6!.color,
+                    ),
                   ),
-                  shrinkWrap: true,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  addAutomaticKeepAlives: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: notesProvider.notes.length,
-                  itemBuilder: ((context, index) {
-                    Note currentNote = notesProvider.notes[index];
-                    if (notesProvider.notes.isEmpty) {
-                      return Text('No Notes');
-                    }
-                    return noteCard(currentNote, context);
-                  }),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate.fixed(
+                    <Widget>[
+                      (notesProvider.notes.isEmpty)
+                          ? Center(child: Text("No Notes"))
+                          : GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                              ),
+                              shrinkWrap: true,
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              addAutomaticKeepAlives: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: notesProvider.notes.length,
+                              itemBuilder: ((context, index) {
+                                Note currentNote = notesProvider.notes[index];
+
+                                return noteCard(currentNote, context);
+                              }),
+                            ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
