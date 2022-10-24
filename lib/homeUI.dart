@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_js_notes/models/noteModel.dart';
 import 'package:flutter_js_notes/providers/notesProvider.dart';
 import 'package:flutter_js_notes/screens/newNote.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomeUI extends StatefulWidget {
@@ -20,6 +21,8 @@ class _HomeUIState extends State<HomeUI> {
     super.initState();
     // DynamicTheme.of(context)!.setTheme(1);
   }
+
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +46,19 @@ class _HomeUIState extends State<HomeUI> {
                 SliverList(
                   delegate: SliverChildListDelegate.fixed(
                     <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(12),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.search),
+                            hintText: 'Search...',
+                          ),
+                          onChanged: (value) {
+                            searchQuery = value;
+                            setState(() {});
+                          },
+                        ),
+                      ),
                       (notesProvider.notes.isEmpty)
                           ? Center(child: Text("No Notes"))
                           : GridView.builder(
@@ -56,11 +72,16 @@ class _HomeUIState extends State<HomeUI> {
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               addAutomaticKeepAlives: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount: notesProvider.notes.length,
+                              // itemCount: notesProvider.notes.length,
+                              itemCount: notesProvider
+                                  .getFilteredNotes(searchQuery)
+                                  .length,
                               itemBuilder: ((context, index) {
-                                Note currentNote = notesProvider.notes[index];
+                                Note currentNote = notesProvider
+                                    .getFilteredNotes(searchQuery)[index];
+                                // Note currentNote = notesProvider.notes[index];
 
-                                return noteCard(currentNote, context);
+                                return noteCard(currentNote, context, index);
                               }),
                             ),
                     ],
@@ -87,7 +108,7 @@ class _HomeUIState extends State<HomeUI> {
     );
   }
 
-  Widget noteCard(Note currentNote, BuildContext context) {
+  Widget noteCard(Note currentNote, BuildContext context, int index) {
     NotesProvider notesProvider = Provider.of<NotesProvider>(context);
     return GestureDetector(
       onTap: () {
@@ -102,28 +123,68 @@ class _HomeUIState extends State<HomeUI> {
       onLongPress: () {
         notesProvider.deleteNote(currentNote);
       },
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                currentNote.title!,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              // color: (index % 3 == 0)
+              //     ? Colors.pink.shade100
+              //     : (index % 2 == 0)
+              //         ? Colors.amber.shade100
+              //         : Colors.blue.shade100,
+              gradient: LinearGradient(colors: [
+                (index % 3 == 0)
+                    ? Colors.pink.shade100
+                    : (index % 2 == 0)
+                        ? Colors.amber.shade100
+                        : Colors.blue.shade100,
+                (index % 3 == 0)
+                    ? Colors.pink.shade300
+                    : (index % 2 == 0)
+                        ? Colors.amber.shade300
+                        : Colors.blue.shade300,
+              ]),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  currentNote.title!,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: (index % 3 == 0)
+                        ? Colors.pink.shade900
+                        : (index % 2 == 0)
+                            ? Colors.amber.shade900
+                            : Colors.blue.shade900,
+                  ),
                 ),
-              ),
-              Text(
-                currentNote.content!,
-                maxLines: 6,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                Text(
+                  currentNote.content!,
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-        ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            DateFormat('yMMMd').format(currentNote.date!),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
