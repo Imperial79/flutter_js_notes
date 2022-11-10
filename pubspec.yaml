@@ -1,5 +1,5 @@
 name: flutter_js_notes
-description: A new Flutter project.
+description: A Notes app with NodeJS as backend, MongoDB as Database and Provider as state.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
